@@ -1,0 +1,50 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f2f5fb;
+}
+
+.app {
+  min-height: 100vh;
+  padding: 1.2rem;
+  color: #0f172a;
+}
+
+.app.dark {
+  background: #0b1020;
+  color: #ecf3ff;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+button {
+  border: 0;
+  border-radius: 8px;
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  border-radius: 14px;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.app.dark .card {
+  background: rgba(17, 25, 47, 0.95);
+}
