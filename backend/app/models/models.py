@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from app.db.session import Base
@@ -43,3 +43,14 @@ class Alert(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     user = relationship("User", back_populates="alerts")
+
+
+class BlogPost(Base):
+    __tablename__ = "blog_posts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(120), nullable=False)
+    summary = Column(String(240), nullable=False)
+    content = Column(Text, nullable=False)
+    author = Column(String(60), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

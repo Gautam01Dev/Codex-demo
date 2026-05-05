@@ -1,65 +1,69 @@
-import { useMemo, useState } from 'react'
-import PredictionChart from '../components/PredictionChart'
+import { useEffect, useState } from 'react'
+import { createPost, listPosts } from '../services/api'
 
-const sample = {
-  symbol: 'AAPL',
-  latest_price: 193.2,
-  short_term_prediction: 201.1,
-  mid_term_prediction: 214.8,
-  confidence_score: 78.4,
-  indicators: { volume: 56000000, rsi: 59.3, macd: 1.24, sma_20: 194.1, sma_50: 189.6 },
-}
+const initialForm = { title: '', summary: '', content: '', author: '' }
 
 export default function App() {
-  const [darkMode, setDarkMode] = useState(true)
-  const [asset, setAsset] = useState(sample)
+  const [posts, setPosts] = useState([])
+  const [form, setForm] = useState(initialForm)
+  const [loading, setLoading] = useState(true)
 
-  const recommendation = useMemo(() => {
-    const upside = ((asset.short_term_prediction - asset.latest_price) / asset.latest_price) * 100
-    if (upside > 4) return 'Buy'
-    if (upside < -3) return 'Sell'
-    return 'Hold'
-  }, [asset])
+  const loadPosts = async () => {
+    setLoading(true)
+    try {
+      setPosts(await listPosts())
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadPosts()
+  }, [])
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    await createPost(form)
+    setForm(initialForm)
+    await loadPosts()
+  }
 
   return (
-    <main className={darkMode ? 'app dark' : 'app'}>
+    <main className="app">
       <header className="topbar">
-        <h1>SmartInvest AI Dashboard</h1>
-        <button onClick={() => setDarkMode((v) => !v)}>Toggle {darkMode ? 'Light' : 'Dark'} Mode</button>
+        <h1>Three-Tier Blog Platform</h1>
+        <p>Presentation (React) • API (FastAPI) • Data (PostgreSQL/SQLite)</p>
       </header>
 
-      <section className="grid">
-        <article className="card">
-          <h2>{asset.symbol} Prediction Engine</h2>
-          <PredictionChart latest={asset.latest_price} shortTerm={asset.short_term_prediction} midTerm={asset.mid_term_prediction} />
-          <p>Confidence: <strong>{asset.confidence_score}%</strong></p>
-        </article>
+      <section className="card">
+        <h2>Create Post</h2>
+        <form className="post-form" onSubmit={handleSubmit}>
+          <input placeholder="Title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
+          <input placeholder="Author" value={form.author} onChange={(e) => setForm({ ...form, author: e.target.value })} required />
+          <input placeholder="Summary" value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} required />
+          <textarea placeholder="Write your blog content..." rows={6} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} required />
+          <button type="submit">Publish</button>
+        </form>
+      </section>
 
-        <article className="card">
-          <h2>Investment Recommendation</h2>
-          <ul>
-            <li>Action: <strong>{recommendation}</strong></li>
-            <li>Risk Level: <strong>Medium</strong></li>
-            <li>Suggested Duration: <strong>1-3 months</strong></li>
-            <li>Portfolio Allocation: <strong>18%</strong></li>
-          </ul>
-        </article>
-
-        <article className="card">
-          <h2>Pros & Cons Analyzer</h2>
-          <p>✅ Pros: Growth potential, stable fundamentals, positive sentiment.</p>
-          <p>❌ Cons: Volatility spikes, policy risk, sentiment reversals.</p>
-        </article>
-
-        <article className="card">
-          <h2>Real-Time Snapshot</h2>
-          <ul>
-            <li>Top Gainer: BTC (+3.2%)</li>
-            <li>Top Loser: ETH (-1.1%)</li>
-            <li>Fear & Greed: Neutral</li>
-            <li>News: "Tech earnings beat estimates across the board"</li>
-          </ul>
-        </article>
+      <section className="card">
+        <h2>Recent Posts</h2>
+        {loading ? <p>Loading posts...</p> : (
+          <div className="posts">
+            {posts.map((post) => (
+              <article key={post.id} className="post-item">
+                <h3>{post.title}</h3>
+                <p><strong>{post.author}</strong> • {new Date(post.created_at).toLocaleString()}</p>
+                <p>{post.summary}</p>
+                <details>
+                  <summary>Read more</summary>
+                  <p>{post.content}</p>
+                </details>
+              </article>
+            ))}
+            {posts.length === 0 && <p>No posts yet. Publish your first one.</p>}
+          </div>
+        )}
       </section>
     </main>
   )

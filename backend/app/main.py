@@ -4,7 +4,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
-from app.api import auth, dashboard, market
+from app.api import auth, blog, dashboard, market
 from app.core.config import settings
 from app.db.session import Base, engine
 
@@ -26,6 +26,7 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(market.router)
+app.include_router(blog.router)
 app.include_router(dashboard.router)
 
 
